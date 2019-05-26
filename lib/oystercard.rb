@@ -34,10 +34,6 @@ class Oystercard
     deduct(@journeylog.fare) if @journeylog.journey_in_progress?
   end
 
-  def add_journey(journey)
-    @journeys.push(journey)
-  end
-
   def deduct(amount)
     @balance -= amount
   end
