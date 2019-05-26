@@ -17,8 +17,15 @@ class Journey
   end
 
   def fare
-    return MINIMUM_FARE if entry && exit
+    return calculate_fare_based_on_zone if entry && exit
 
     PENALTY_FARE
+  end
+
+  private
+
+  def calculate_fare_based_on_zone
+    difference = (entry.zone - exit.zone).abs
+    difference + 1
   end
 end
