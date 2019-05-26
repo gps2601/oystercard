@@ -28,6 +28,10 @@ class Oystercard
     @journeylog.complete
   end
 
+  def view_journey_history
+    @journeylog.journeys
+  end
+
   private
 
   def deduct_incomplete_journeys
