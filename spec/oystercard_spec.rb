@@ -4,14 +4,16 @@ describe Oystercard do
   let(:subject) { Oystercard.new(0) }
   let(:entry_station_double) { double('entry_station_double') }
   let(:exit_station_double) { double('exit_station_double') }
+  let(:journey_double) { double('journey_double')}
+  let(:journey_class) { double('journey_class', new: journey_double )}
 
   describe '#initialize' do
     it 'has a balance of 0 by default when initialized' do
       expect(subject.balance).to eq(0)
     end
 
-    it 'has an entry station instance variable that is nil' do
-      expect(subject.entry_station).to eq(nil)
+    it 'has an journey instance variable that is nil' do
+      expect(subject.journey).to eq(nil)
     end
 
     it 'has a journeys object' do
@@ -60,18 +62,45 @@ describe Oystercard do
         .to raise_error(Oystercard::BAL_UNDER_MIN_FARE)
     end
 
-    it 'will remember an entry station passed in' do
-      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+    it 'will initialize a journey object' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
 
       subject.touch_in(entry_station_double)
 
-      expect(subject.entry_station).to eq(entry_station_double)
+      expect(subject.journey).to eq(journey_double)
+    end
+
+    it 'will add a journey if touch in and journey already ongoing' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:fare).and_return(1)
+
+      subject.touch_in(entry_station_double)
+      subject.touch_in(entry_station_double)
+
+      expect(subject.journeys).to include(journey_double)
+    end
+
+    it 'deduct a fare from journey if touch in and journey already ongoing' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:fare).and_return(6)
+
+      subject.touch_in(entry_station_double)
+
+      expect { subject.touch_in(exit_station_double) }
+        .to change{subject.balance}.by(-6)
     end
   end
 
   describe '#touch_out' do
     it 'can change the state of in_journey from true to false' do
-      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:end_journey)
+      allow(journey_double).to receive(:fare).and_return(6)
+
       subject.touch_in(entry_station_double)
       subject.touch_out(exit_station_double)
 
@@ -79,23 +108,35 @@ describe Oystercard do
     end
 
     it 'in_journey will remain false if touched out' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:end_journey)
+      allow(journey_double).to receive(:fare).and_return(6)
+
       subject.touch_out(exit_station_double)
 
       expect(subject.in_journey?).to eq(false)
     end
 
     it 'will reduce the balance by the minimum fare on touch out' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:end_journey)
+      allow(journey_double).to receive(:fare).and_return(Oystercard::MINIMUM_FARE)
+
       expect { subject.touch_out(exit_station_double) }
         .to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
 
-    it 'will set the entry_station to nil when touched out' do
-      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+    it 'will set the journey to nil when touched out' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:end_journey)
+      allow(journey_double).to receive(:fare).and_return(Oystercard::MINIMUM_FARE)
       subject.touch_in(entry_station_double)
-
       subject.touch_out(exit_station_double)
 
-      expect(subject.entry_station).to eq(nil)
+      expect(subject.journey).to eq(nil)
     end
 
     it 'can accept a touch out station' do
@@ -106,12 +147,14 @@ describe Oystercard do
     end
 
     it 'can add a journey to journeys' do
-      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE, [], journey_class)
+      allow(journey_double).to receive(:start_journey)
+      allow(journey_double).to receive(:end_journey)
+      allow(journey_double).to receive(:fare).and_return(6)
       subject.touch_in(entry_station_double)
       subject.touch_out(exit_station_double)
 
-      expect(subject.journeys)
-        .to include(entry: entry_station_double, exit: exit_station_double)
+      expect(subject.journeys).to include(journey_double)
     end
   end
 end

@@ -1,13 +1,16 @@
+require 'journey'
+
 class Oystercard
   MAXIMUM_BALANCE = 90
   MINIMUM_FARE = 1
   OVER_MAX_BALANCE_ERROR = 'Top up not allowed. Maximum balance exceeded.'
   BAL_UNDER_MIN_FARE = 'Touch in now allowed. Minimum balance not met.'
-  attr_reader :balance, :entry_station, :journeys
-  def initialize(balance, journeys = [])
+  attr_reader :balance, :entry_station, :journeys, :journey
+  def initialize(balance, journeys = [], journey_class = Journey)
     @balance = balance
     @journeys = journeys
-    @entry_station = nil
+    @journey = nil
+    @journey_class = journey_class
   end
 
   def top_up(amount)
@@ -16,27 +19,39 @@ class Oystercard
   end
 
   def in_journey?
-    !@entry_station.nil?
+    !@journey.nil?
   end
 
   def touch_in(entry_station)
     check_card_has_minimum_fare
 
-    @entry_station = entry_station
-    @in_journey = true
+    add_journey_not_touched_out
+
+    @journey = @journey_class.new
+
+    @journey.start_journey(entry_station)
   end
 
   def touch_out(exit_station)
-    @in_journey = false
-    add_journey(entry_station, exit_station)
-    @entry_station = nil
-    deduct(MINIMUM_FARE)
+    @journey = @journey_class.new if @journey.nil?
+
+    @journey.end_journey(exit_station)
+    add_journey(@journey)
+    deduct(@journey.fare)
+    @journey = nil
   end
 
   private
 
-  def add_journey(entry, exit)
-    @journeys.push(entry: entry, exit: exit)
+  def add_journey_not_touched_out
+    if !@journey.nil?
+      add_journey(@journey)
+      deduct(@journey.fare)
+    end
+  end
+
+  def add_journey(journey)
+    @journeys.push(journey)
   end
 
   def deduct(amount)
