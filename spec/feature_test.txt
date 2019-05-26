@@ -1,0 +1,23 @@
+require './lib/journey.rb'
+require './lib/journeyLog.rb'
+require './lib/station.rb'
+require './lib/oystercard.rb'
+
+my_journeylog = JourneyLog.new(Journey)
+my_oystercard = Oystercard.new(50, my_journeylog)
+
+barbican = Station.new('Barbican',1)
+oldstreet = Station.new('Old Street',2)
+
+my_oystercard.top_up(5)
+
+my_oystercard.touch_in(barbican)
+my_oystercard.touch_out(oldstreet)
+my_oystercard.balance
+
+my_oystercard.touch_out(oldstreet)
+my_oystercard.balance
+
+my_oystercard.touch_in(oldstreet)
+my_oystercard.touch_in(oldstreet)
+my_oystercard.balance
