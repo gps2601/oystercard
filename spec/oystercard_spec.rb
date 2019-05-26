@@ -13,6 +13,10 @@ describe Oystercard do
     it 'has an entry station instance variable that is nil' do
       expect(subject.entry_station).to eq(nil)
     end
+
+    it 'has a journeys object' do
+      expect(subject.journeys).to eq([])
+    end
   end
 
   describe '#top_up' do
@@ -99,6 +103,15 @@ describe Oystercard do
       subject.touch_in(entry_station_double)
 
       expect(subject).to respond_to(:touch_out).with(1).argument
+    end
+
+    it 'can add a journey to journeys' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+      subject.touch_in(entry_station_double)
+      subject.touch_out(exit_station_double)
+
+      expect(subject.journeys)
+        .to include(entry: entry_station_double, exit: exit_station_double)
     end
   end
 end

@@ -3,9 +3,10 @@ class Oystercard
   MINIMUM_FARE = 1
   OVER_MAX_BALANCE_ERROR = 'Top up not allowed. Maximum balance exceeded.'
   BAL_UNDER_MIN_FARE = 'Touch in now allowed. Minimum balance not met.'
-  attr_reader :balance, :entry_station
-  def initialize(balance)
+  attr_reader :balance, :entry_station, :journeys
+  def initialize(balance, journeys = [])
     @balance = balance
+    @journeys = journeys
     @entry_station = nil
   end
 
@@ -27,11 +28,16 @@ class Oystercard
 
   def touch_out(exit_station)
     @in_journey = false
+    add_journey(entry_station, exit_station)
     @entry_station = nil
     deduct(MINIMUM_FARE)
   end
 
   private
+
+  def add_journey(entry, exit)
+    @journeys.push(entry: entry, exit: exit)
+  end
 
   def deduct(amount)
     @balance -= amount
