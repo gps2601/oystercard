@@ -44,7 +44,7 @@ class Oystercard
   private
 
   def add_journey_not_touched_out
-    if !@journey.nil?
+    unless @journey.nil?
       add_journey(@journey)
       deduct(@journey.fare)
     end

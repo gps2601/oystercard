@@ -1,7 +1,7 @@
 require 'station'
 
 describe Station do
-  let(:subject){Station.new('Barbican', 1)}
+  let(:subject) { Station.new('Barbican', 1) }
   describe '#initialize' do
     it 'can create a station with a name' do
       expect(subject.name).to eq('Barbican')

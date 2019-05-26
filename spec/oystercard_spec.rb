@@ -4,8 +4,8 @@ describe Oystercard do
   let(:subject) { Oystercard.new(0) }
   let(:entry_station_double) { double('entry_station_double') }
   let(:exit_station_double) { double('exit_station_double') }
-  let(:journey_double) { double('journey_double')}
-  let(:journey_class) { double('journey_class', new: journey_double )}
+  let(:journey_double) { double('journey_double') }
+  let(:journey_class) { double('journey_class', new: journey_double) }
 
   describe '#initialize' do
     it 'has a balance of 0 by default when initialized' do
@@ -90,7 +90,7 @@ describe Oystercard do
       subject.touch_in(entry_station_double)
 
       expect { subject.touch_in(exit_station_double) }
-        .to change{subject.balance}.by(-6)
+        .to change { subject.balance }.by(-6)
     end
   end
 
