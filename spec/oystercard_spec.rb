@@ -3,6 +3,8 @@ require 'oystercard'
 describe Oystercard do
   let(:subject) { Oystercard.new(0) }
   let(:entry_station_double) { double('entry_station_double') }
+  let(:exit_station_double) { double('exit_station_double') }
+
   describe '#initialize' do
     it 'has a balance of 0 by default when initialized' do
       expect(subject.balance).to eq(0)
@@ -67,28 +69,36 @@ describe Oystercard do
     it 'can change the state of in_journey from true to false' do
       subject = Oystercard.new(Oystercard::MINIMUM_FARE)
       subject.touch_in(entry_station_double)
-      subject.touch_out
+      subject.touch_out(exit_station_double)
 
       expect(subject.in_journey?).to eq(false)
     end
 
     it 'in_journey will remain false if touched out' do
-      subject.touch_out
+      subject.touch_out(exit_station_double)
 
       expect(subject.in_journey?).to eq(false)
     end
 
     it 'will reduce the balance by the minimum fare on touch out' do
-      expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
+      expect { subject.touch_out(exit_station_double) }
+        .to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
 
     it 'will set the entry_station to nil when touched out' do
       subject = Oystercard.new(Oystercard::MINIMUM_FARE)
       subject.touch_in(entry_station_double)
 
-      subject.touch_out
+      subject.touch_out(exit_station_double)
 
       expect(subject.entry_station).to eq(nil)
+    end
+
+    it 'can accept a touch out station' do
+      subject = Oystercard.new(Oystercard::MINIMUM_FARE)
+      subject.touch_in(entry_station_double)
+
+      expect(subject).to respond_to(:touch_out).with(1).argument
     end
   end
 end
