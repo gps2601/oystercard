@@ -1,11 +1,10 @@
 require 'journeylog'
 
-
 describe JourneyLog do
-  let(:exit_station_double) { double('exit_station_double')}
-  let(:entry_station_double) { double('entry_station_double')}
+  let(:exit_station_double) { double('exit_station_double') }
+  let(:entry_station_double) { double('entry_station_double') }
   let(:journey_double) { double('journey_double') }
-  let(:journey_class) { double('journey_class', new: journey_double)}
+  let(:journey_class) { double('journey_class', new: journey_double) }
   let(:subject) { JourneyLog.new(journey_class) }
   describe '#start_journey' do
     it 'can instantiate a journey object from class passed in' do
