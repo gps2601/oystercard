@@ -22,6 +22,17 @@ describe JourneyLog do
 
       subject.start_journey(entry_station_double)
     end
+
+    it 'will finish a journey that is already in progress' do
+      allow(journey_double).to receive(:start_journey)
+
+      expect(journey_double).to receive(:start_journey).with(entry_station_double)
+
+      subject.start_journey(entry_station_double)
+      subject.start_journey(entry_station_double)
+
+      expect(subject.journeys).to include(journey_double)
+    end
   end
 
   describe '#end_journey' do
